@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import "./SignInSignUp.css";
 import video from "./images/bg_video.mp4";
-
+import logoImage from "./images/logo.png";
 const SignInSignUpPage = ({ onLoginSuccess }) => {
   const [showSignUp, setShowSignUp] = useState(false);
   const [signUpOption, setSignUpOption] = useState("client");
@@ -55,6 +55,7 @@ const SignInSignUpPage = ({ onLoginSuccess }) => {
 
   return (
     <div className="body">
+      <img src={logoImage} alt="Logo" className="logo" />
       <div className={`cont ${showSignUp ? "s-sign-up" : ""}`}>
         {!showSignUp && (
           <div className="video video-right">
