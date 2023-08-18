@@ -13,6 +13,8 @@ const SignInSignUpPage = ({ onLoginSuccess }) => {
   const [name, setName] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [otp, setOtp] = useState("");
 
   const handleToggleForm = () => {
     setShowSignUp(!showSignUp);
@@ -27,6 +29,30 @@ const SignInSignUpPage = ({ onLoginSuccess }) => {
     // Implement your sign-up logic here
   };
 
+  const handleOTPValidation = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/otp/validate",
+        {
+          email,
+          otp,
+        }
+      );
+      console.log(response.data); // This should print the response from the server
+      const { token, userId } = response.data;
+
+      // Save the token and user ID in local storage or a state variable
+      localStorage.setItem("token", token);
+      localStorage.setItem("userId", userId);
+      onLoginSuccess(); // Call the onLoginSuccess function passed as a prop
+    } catch (error) {
+      setError(error.response.data.message);
+    }
+  };
+  const sendOTP = async () => {
+    setOtpSent(true);
+  };
+
   return (
     <div className="body">
       <div className={`cont ${showSignUp ? "s-sign-up" : ""}`}>
@@ -38,20 +64,10 @@ const SignInSignUpPage = ({ onLoginSuccess }) => {
           </div>
         )}
         <div className={`form ${showSignUp ? "sign-up" : "sign-in"}`}>
-          {showSignUp ? (
+          {showSignUp && !otpSent && (
             <div className="form-content sign-up">
               <h2>Sign Up</h2>
-              <label className="label">
-                <span className="span">Sign Up As</span>
-                <select
-                  className="input"
-                  value={signUpOption}
-                  onChange={(e) => setSignUpOption(e.target.value)}
-                >
-                  <option value="client">Client</option>
-                  <option value="university">University</option>
-                </select>
-              </label>
+
               <label className="label">
                 <span className="span">Name</span>
                 <input
@@ -96,12 +112,43 @@ const SignInSignUpPage = ({ onLoginSuccess }) => {
                   required
                 />
               </label>
-              <button type="button" className="submit" onClick={handleSignUp}>
-                Sign Up Now
+              <label className="label">
+                <span className="span">Sign Up As</span>
+                <select
+                  className="input"
+                  value={signUpOption}
+                  onChange={(e) => setSignUpOption(e.target.value)}
+                >
+                  <option value="client">Client</option>
+                  <option value="university">University</option>
+                </select>
+              </label>
+              <button type="button" className="submit" onClick={sendOTP}>
+                Send OTP
               </button>
               {error && <p className="error">{error}</p>}
             </div>
-          ) : (
+          )}
+          {showSignUp && otpSent && (
+            <div className="form-content sign-up">
+              <h2>Verify Email</h2>
+              <label className="label">
+                <span className="span">Enter OTP</span>
+                <input
+                  className="input"
+                  type="text"
+                  name="otp"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                />
+              </label>
+              <button type="button" className="submit" onClick={handleSignUp}>
+                Verify OTP
+              </button>
+              {error && <p className="error">{error}</p>}
+            </div>
+          )}
+          {!showSignUp && (
             <div className="form-content sign-in">
               <h2>Sign In</h2>
               <label className="label">
